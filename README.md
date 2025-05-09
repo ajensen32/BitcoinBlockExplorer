@@ -2,7 +2,7 @@
 
 <p>
   A lightweight full-stack Bitcoin block explorer built with <strong>Python Flask</strong> and <strong>.NET Blazor Server</strong>. 
-  This project allows users to search for Bitcoin block data by height and view detailed transaction information by transaction ID — all using live data from the <a href="https://blockstream.info/api">Blockstream public REST API</a>.
+  This project allows users to search for Bitcoin block data by height and view detailed transaction information by transaction ID — all using live data from the Blockstream public REST API.
 </p>
 
 <hr />
