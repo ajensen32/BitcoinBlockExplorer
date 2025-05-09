@@ -1,0 +1,94 @@
+﻿@page "/"
+@using BitcoinExplorer.Models
+@using BlockExplorer.Services
+@inject BlockService BlockService
+
+<h3>Search Block</h3>
+<input type="number" @bind="blockHeight" />
+<button @onclick="LoadBlock">Get Block</button>
+
+@if (block != null)
+{
+    <p><b>Hash:</b> @block.Hash</p>
+    <p><b>Time:</b> @(block.Time.HasValue ? DateTimeOffset.FromUnixTimeSeconds(block.Time.Value).UtcDateTime.ToString("u") : "N/A")</p>
+
+    <h4>Transactions</h4>
+    <ul>
+        @foreach (var tx in block.Transactions ?? new List<string>())
+        {
+            <li>
+                <a href="#" style="text-decoration: underline; cursor: pointer;" @onclick="() => LoadTransactionFromBlock(tx)">
+                    @tx
+                </a>
+            </li>
+        }
+    </ul>
+}
+
+<hr />
+
+<h3>Search Transaction</h3>
+<input type="text" @bind="txid" />
+<button @onclick="LoadTransaction">Get Transaction</button>
+
+@if (transaction != null)
+{
+    <p><b>Transaction ID:</b> @transaction.Txid</p>
+
+    <h4>Inputs</h4>
+    <ul>
+        @foreach (var input in transaction.Inputs ?? new List<Input>())
+        {
+            <li>
+                <b>Previous TX:</b> @input.PrevTx |
+                <b>Index:</b> @(input.Index == 4294967295 ? "coinbase" : input.Index?.ToString() ?? "N/A")
+            </li>
+        }
+    </ul>
+
+    <h4>Outputs</h4>
+    <ul>
+        @foreach (var output in transaction.Outputs ?? new List<Output>())
+        {
+            <li><b>Address:</b> @output.Address | <b>Value:</b> @output.Value BTC</li>
+        }
+    </ul>
+}
+
+@code {
+    private int blockHeight;
+    private string txid = string.Empty;
+
+    private BlockData? block;
+    private TransactionData? transaction;
+
+    private async Task LoadBlock()
+    {
+        try
+        {
+            block = await BlockService.GetBlockAsync(blockHeight);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading block: {ex.Message}");
+        }
+    }
+
+    private async Task LoadTransaction()
+    {
+        try
+        {
+            transaction = await BlockService.GetTransactioNAsync(txid);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading transaction: {ex.Message}");
+        }
+    }
+
+    private async Task LoadTransactionFromBlock(string selectedTxid)
+    {
+        txid = selectedTxid;
+        await LoadTransaction();
+    }
+}
